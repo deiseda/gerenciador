@@ -25,4 +25,6 @@ public class FornecedorService {
 	public void criar(Fornecedor fornecedor) {
 		fornecedorRepository.save(fornecedor);
 	}
+	
+
 }

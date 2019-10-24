@@ -42,12 +42,13 @@ public class FornecedorController {
 		return fornecedorService.carregarTodos();		
 	}
 	
-	@GetMapping("/{id}")
-	public Optional<Fornecedor> obterPeloId(@PathVariable Long id) {
-		//Optional<Fornecedor> fornecedorRetornado = fornecedorRepository.findById(id);		
-		//return ResponseEntity.ok().body(fornecedores);
-		return fornecedorRepository.findById(id);
+	@GetMapping(path = "/{id}")
+	public ResponseEntity<Fornecedor> obterPeloId(@PathVariable Long id) {
+		return fornecedorRepository.findById(id)
+				.map(record -> ResponseEntity.ok().body(record))
+				.orElse(ResponseEntity.notFound().build());
 	}
+	
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
@@ -61,17 +62,34 @@ public class FornecedorController {
 		return ResponseEntity.created(uri).body(fornecedorSalvo);
 	}
 	
-	@DeleteMapping("/{idFornecedor}")
+/*	@DeleteMapping("/{idFornecedor}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long idFornecedor) {
 		fornecedorService.remover(idFornecedor);
+	}*/
+	
+	@DeleteMapping(path ={"/{idFornecedor}"})
+	public ResponseEntity<?> delete(@PathVariable Long idFornecedor) {
+	   return fornecedorRepository.findById(idFornecedor)
+	           .map(record -> {
+	        	   fornecedorRepository.deleteById(idFornecedor);
+	               return ResponseEntity.ok().build();
+	           }).orElse(ResponseEntity.notFound().build());
 	}
 	
-	/*@PutMapping("/{idFornecedor}")
+	
+	@PutMapping(value="/{idFornecedor}")
 	public ResponseEntity<Fornecedor> alterar(@PathVariable Long idFornecedor, @Valid @RequestBody Fornecedor fornecedor) {
-		Fornecedor fornecedorSalvo = fornecedorRepository.findById(fornecedor);
-		BeanUtils.copyProperties(fornecedor, fornecedorSalvo, idFornecedor);
-		fornecedorRepository.save(fornecedorSalvo);
-		return ResponseEntity.ok(fornecedorSalvo);*/
+		
+		return fornecedorRepository.findById(idFornecedor)
+				.map(record -> {
+					record.setCnpj(fornecedor.getCnpj());
+					record.setNomeFantasia(fornecedor.getNomeFantasia());
+					record.setRazaoSocial(fornecedor.getRazaoSocial());
+					record.setTelefone(fornecedor.getTelefone());
+					Fornecedor updated = fornecedorRepository.save(record);
+					return ResponseEntity.ok().body(updated);
+				}).orElse(ResponseEntity.noContent().build());
+	}
 
 }
