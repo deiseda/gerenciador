@@ -25,32 +25,30 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.deise.gerenciador.model.Fornecedor;
+import com.deise.gerenciador.model.Vendedor;
 import com.deise.gerenciador.repository.FornecedorRepository;
+import com.deise.gerenciador.repository.VendedorRepository;
 import com.deise.gerenciador.service.FornecedorService;
+import com.deise.gerenciador.service.VendedorService;
 
 @RestController
-@RequestMapping("/fornecedores")
-public class FornecedorController {
+@RequestMapping("/vendedores")
+public class VendedorController {
 	
 	@Autowired
-	public FornecedorService fornecedorService;
+	public VendedorService vendedorService;
 	 
 	@Autowired
-	public FornecedorRepository fornecedorRepository;
-	
-	/*@RequestMapping(method=RequestMethod.GET, value="cadastro-fornecedor")
-	public String inicio() {
-		return "cadastro/cadastro-fornecedor.html";
-	}*/
-	
+	public VendedorRepository vendedorRepository;
+		
 	@GetMapping
-	public List<Fornecedor> obterTodos(){
-		return fornecedorService.carregarTodos();		
+	public List<Vendedor> obterTodos(){
+		return vendedorService.carregarTodos();		
 	}
 	
 	@GetMapping(path = "/{id}")
-	public ResponseEntity<Fornecedor> obterPeloId(@PathVariable Long id) {
-		return fornecedorRepository.findById(id)
+	public ResponseEntity<Vendedor> obterPeloId(@PathVariable Long id) {
+		return vendedorRepository.findById(id)
 				.map(record -> ResponseEntity.ok().body(record))
 				.orElse(ResponseEntity.notFound().build());
 	}
@@ -58,42 +56,37 @@ public class FornecedorController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<Fornecedor> criar(@Valid @RequestBody Fornecedor fornecedor, HttpServletResponse response) {
-		Fornecedor fornecedorSalvo = fornecedorRepository.save(fornecedor);
+	public ResponseEntity<Vendedor> criar(@Valid @RequestBody Vendedor vendedor, HttpServletResponse response) {
+		Vendedor vendedorSalvo = vendedorRepository.save(vendedor);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}")
-		.buildAndExpand(fornecedorSalvo.getIdFornecedor()).toUri();
+		.buildAndExpand(vendedorSalvo.getIdVendedor()).toUri();
 		response.setHeader("Location", uri.toASCIIString());
 		
-		return ResponseEntity.created(uri).body(fornecedorSalvo);
+		return ResponseEntity.created(uri).body(vendedorSalvo);
 	}
+
 	
-/*	@DeleteMapping("/{idFornecedor}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long idFornecedor) {
-		fornecedorService.remover(idFornecedor);
-	}*/
-	
-	@DeleteMapping(path ={"/{idFornecedor}"})
-	public ResponseEntity<?> delete(@PathVariable Long idFornecedor) {
-	   return fornecedorRepository.findById(idFornecedor)
+	@DeleteMapping(path ={"/{id}"})
+	public ResponseEntity<?> delete(@PathVariable Long id) {
+	   return vendedorRepository.findById(id)
 	           .map(record -> {
-	        	   fornecedorRepository.deleteById(idFornecedor);
+	        	   vendedorRepository.deleteById(id);
 	               return ResponseEntity.ok().build();
 	           }).orElse(ResponseEntity.notFound().build());
 	}
 	
 	
-	@PutMapping(value="/{idFornecedor}")
-	public ResponseEntity<Fornecedor> alterar(@PathVariable Long idFornecedor, @Valid @RequestBody Fornecedor fornecedor) {
+	@PutMapping(value="/{idVendedor}")
+	public ResponseEntity<Vendedor> alterar(@PathVariable Long idVendedor, @Valid @RequestBody Vendedor vendedor) {
 		
-		return fornecedorRepository.findById(idFornecedor)
+		return vendedorRepository.findById(idVendedor)
 				.map(record -> {
-					record.setCnpj(fornecedor.getCnpj());
-					record.setNomeFantasia(fornecedor.getNomeFantasia());
-					record.setRazaoSocial(fornecedor.getRazaoSocial());
-					record.setTelefone(fornecedor.getTelefone());
-					Fornecedor updated = fornecedorRepository.save(record);
+					record.setCpf(vendedor.getCpf());
+					record.setMatricula(vendedor.getMatricula());
+					record.setNome(vendedor.getNome());
+					record.setTelefone(vendedor.getTelefone());
+					Vendedor updated = vendedorRepository.save(record);
 					return ResponseEntity.ok().body(updated);
 				}).orElse(ResponseEntity.noContent().build());
 	}
